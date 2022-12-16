@@ -618,8 +618,12 @@ class BelongsToMany extends Relation
      */
     public function firstOrCreate(array $attributes = [], array $values = [], array $joining = [], $touch = true)
     {
-        if (is_null($instance = $this->related->where($attributes)->first())) {
-            $instance = $this->create(array_merge($attributes, $values), $joining, $touch);
+        if (is_null($instance = (clone $this)->where($attributes)->first())) {
+            if (is_null($instance = $this->related->where($attributes)->first())) {
+                $instance = $this->create(array_merge($attributes, $values), $joining, $touch);
+            } else {
+                $this->attach($instance, $joining, $touch);
+            }
         }
 
         return $instance;
@@ -636,8 +640,12 @@ class BelongsToMany extends Relation
      */
     public function updateOrCreate(array $attributes, array $values = [], array $joining = [], $touch = true)
     {
-        if (is_null($instance = $this->related->where($attributes)->first())) {
-            return $this->create(array_merge($attributes, $values), $joining, $touch);
+        if (is_null($instance = (clone $this)->where($attributes)->first())) {
+            if (is_null($instance = $this->related->where($attributes)->first())) {
+                return $this->create(array_merge($attributes, $values), $joining, $touch);
+            } else {
+                $this->attach($instance, $joining, $touch);
+            }
         }
 
         $instance->fill($values);
@@ -709,6 +717,37 @@ class BelongsToMany extends Relation
         }
 
         throw (new ModelNotFoundException)->setModel(get_class($this->related), $id);
+    }
+
+    /**
+     * Find a related model by its primary key or call a callback.
+     *
+     * @param  mixed  $id
+     * @param  \Closure|array  $columns
+     * @param  \Closure|null  $callback
+     * @return \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Eloquent\Collection|mixed
+     */
+    public function findOr($id, $columns = ['*'], Closure $callback = null)
+    {
+        if ($columns instanceof Closure) {
+            $callback = $columns;
+
+            $columns = ['*'];
+        }
+
+        $result = $this->find($id, $columns);
+
+        $id = $id instanceof Arrayable ? $id->toArray() : $id;
+
+        if (is_array($id)) {
+            if (count($result) === count(array_unique($id))) {
+                return $result;
+            }
+        } elseif (! is_null($result)) {
+            return $result;
+        }
+
+        return $callback();
     }
 
     /**
@@ -838,7 +877,7 @@ class BelongsToMany extends Relation
     /**
      * Get the pivot columns for the relation.
      *
-     * "pivot_" is prefixed ot each column for easy removal later.
+     * "pivot_" is prefixed at each column for easy removal later.
      *
      * @return array
      */
@@ -1186,6 +1225,20 @@ class BelongsToMany extends Relation
         $this->touchIfTouching();
 
         return $models;
+    }
+
+    /**
+     * Save an array of new models without raising any events and attach them to the parent model.
+     *
+     * @param  \Illuminate\Support\Collection|array  $models
+     * @param  array  $pivotAttributes
+     * @return array
+     */
+    public function saveManyQuietly($models, array $pivotAttributes = [])
+    {
+        return Model::withoutEvents(function () use ($models, $pivotAttributes) {
+            return $this->saveMany($models, $pivotAttributes);
+        });
     }
 
     /**
