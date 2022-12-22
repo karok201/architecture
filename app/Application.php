@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Http;
+namespace App;
 
-use App\Packages\Config;
+use App\Http\Router;
+use App\Packages\UseCases\Config;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
 class Application

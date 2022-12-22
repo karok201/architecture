@@ -1,8 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
-
-use App\Http\Request;
+namespace App\Packages\Interfaces;
 
 interface RestApiController
 {

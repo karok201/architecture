@@ -1,6 +1,8 @@
 <?php
 
-namespace App\Packages;
+namespace App\Packages\UseCases;
+
+use App\Packages\Interfaces\Singleton;
 
 class Request extends Singleton
 {

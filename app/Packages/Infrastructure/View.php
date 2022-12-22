@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Packages;
+namespace App\Packages\Infrastructure;
 
+use App\Packages\Interfaces\Renderable;
 use const EXTR_IF_EXISTS;
 
 class View implements Renderable

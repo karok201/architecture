@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Packages\View;
+use App\Packages\Infrastructure\View;
 
 class HomeController
 {
