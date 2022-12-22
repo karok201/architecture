@@ -4,6 +4,13 @@ namespace App\Http;
 
 class Request
 {
+    private array $data;
+
+    public function __construct()
+    {
+        $this->data = $this->getData();
+    }
+
     public function getPath()
     {
         $path = $_SERVER['REQUEST_URI'] ?? '/';
@@ -20,6 +27,15 @@ class Request
         return strtolower($_SERVER['REQUEST_METHOD']);
     }
 
+    private function getData(): array
+    {
+        if ($this->getMethod() === 'GET') {
+            return $_GET;
+        }
+
+        return $_POST;
+    }
+
     /**
      * Get all the data from the request
      *
@@ -27,10 +43,17 @@ class Request
      */
     public function all(): array
     {
-        if ($this->getMethod() === 'GET') {
-            return $_GET;
-        }
+        return $this->data;
+    }
 
-        return $_POST;
+    /**
+     * Get data from the request by key
+     *
+     * @param string $key
+     * @return mixed
+     */
+    public function get(string $key): mixed
+    {
+        return $this->data[$key];
     }
 }
