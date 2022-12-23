@@ -1,15 +1,20 @@
 <?php
 
-namespace App\Http;
+namespace App\Packages\Infrastructure;
 
+use App\Packages\Interfaces\Middleware;
 use Closure;
-use HttpException;
+use RuntimeException;
 
 class Route
 {
     public string $method;
+
     public string $path;
+
     public Closure $callback;
+
+    private Middleware $middleware;
 
     public function __construct(string $method, string $path, array $callback)
     {
@@ -36,20 +41,34 @@ class Route
         return $this->path;
     }
 
+    public function setMiddleware(Middleware $middleware): void
+    {
+        $this->middleware = $middleware;
+    }
+
     /**
-     * @throws HttpException
+     * @throws RuntimeException
      */
     public function match(string $path, string $method): bool
     {
         if ($method === $this->method) {
             return trim($this->getPath(), '/') === $path;
         } else {
-            throw new HttpException('The transmission method does not match the route', 405);
+            throw new RuntimeException('The transmission method does not match the route', 405);
         }
     }
 
-    public function run()
+    private function runMiddleware(Request $request): void
     {
+        if (isset($this->middleware) && !$this->middleware->check($request)) {
+            throw new RuntimeException('Forbidden', 403);
+        }
+    }
+
+    public function run(Request $request)
+    {
+        $this->runMiddleware($request);
+
         return call_user_func($this->callback);
     }
 }

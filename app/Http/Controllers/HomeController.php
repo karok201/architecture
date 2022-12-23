@@ -10,4 +10,9 @@ class HomeController
     {
         return new View('main');
     }
+
+    public function allowed(): View
+    {
+        return new View('main');
+    }
 }

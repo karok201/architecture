@@ -1,14 +1,30 @@
 <?php
 
-namespace App;
+namespace App\Http;
 
-use App\Http\Router;
+use App\Packages\Infrastructure\Router;
 use App\Packages\UseCases\Config;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
-class Application
+class Kernel
 {
+    /**
+     * The router instance
+     * @var Router
+     */
     public Router $router;
+
+    /**
+     * The application's middleware stack
+     * @var array
+     */
+    protected array $middleware;
+
+    /**
+     * The application's route middleware.
+     * @var array
+     */
+    protected array $routeMiddleware;
 
     private function init(): void
     {
@@ -21,6 +37,7 @@ class Application
         $capsule->setAsGlobal();
         $capsule->bootEloquent();
     }
+
     public function __construct()
     {
         $this->init();

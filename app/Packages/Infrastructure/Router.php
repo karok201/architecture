@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http;
+namespace App\Packages\Infrastructure;
 
 use ReflectionException;
 use RuntimeException;
@@ -16,19 +16,22 @@ class Router
         $this->request = new Request();
     }
 
-    public function get($path, $callback): void
+    public function get($path, $callback): Route
     {
-        $this->addRoute('get', $path, $callback);
+        return $this->addRoute('get', $path, $callback);
     }
 
-    public function post($path, $callback): void
+    public function post($path, $callback): Route
     {
-        $this->addRoute('post', $path, $callback);
+        return $this->addRoute('post', $path, $callback);
     }
 
-    public function addRoute(string $method, string $path, array $callback): void
+    public function addRoute(string $method, string $path, array $callback): Route
     {
-        $this->routes[] = new Route($method, $path, $callback);
+        $route = new Route($method, $path, $callback);
+        $this->routes[] = $route;
+
+        return $route;
     }
 
     /**
@@ -42,7 +45,7 @@ class Router
 
         foreach ($this->routes as $route) {
             if ($route->match($path, $method)) {
-                return $route->run();
+                return $route->run($this->request);
             }
         }
 

@@ -2,14 +2,21 @@
 
 namespace App\Http\Middleware;
 
-use App\Http\Request;
+use App\Packages\Infrastructure\Request;
 use App\Packages\Interfaces\Middleware;
+use App\Packages\UseCases\Session;
+use RuntimeException;
 
-class Authenticate implements Middleware
+class Authenticate extends Middleware
 {
-
-    public function handle(Request $request): void
+    public function check(Request $request): bool
     {
-        // TODO: Implement handle() method.
+        $user = Session::get('user');
+
+        if (!$user) {
+            throw new RuntimeException('Not found', '404');
+        }
+
+        return parent::check($request);
     }
 }

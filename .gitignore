@@ -1,2 +1,4 @@
 /vendor
 .idea
+/storage/logs/app.log
+composer.lock

@@ -14,7 +14,7 @@ final class Config extends Singleton
     protected function __construct()
     {
         parent::__construct();
-        $this->config = require(dirname(__DIR__) . '/../config/config.php');
+        $this->config = require APP_PATH . '/config/config.php';
     }
 
     /**
