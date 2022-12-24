@@ -8,9 +8,9 @@ use RuntimeException;
 
 class Route
 {
-    public string $method;
+    private string $method;
 
-    public string $path;
+    private string $path;
 
     public Closure $callback;
 

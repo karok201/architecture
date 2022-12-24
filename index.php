@@ -2,13 +2,16 @@
 
 require_once __DIR__ . '/bootstrap.php';
 
+use App\Http\Controllers\{
+    HomeController,
+    AuthenticatedSessionController
+};
 use App\Http\Kernel;
-use App\Http\Controllers\HomeController;
-use App\Http\Middleware\Authenticate;
 
 $app = new Kernel();
 
-$app->router->get('/', [HomeController::class, 'main'])->setMiddleware((new Authenticate()));
-$app->router->get('/allowed', [HomeController::class, 'allowed']);
+$app->router->get('/', [HomeController::class, 'index']);
+$app->router->get('/login', [AuthenticatedSessionController::class, 'create']);
+$app->router->post('/login', [AuthenticatedSessionController::class, 'store']);
 
 $app->run();

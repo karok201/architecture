@@ -6,7 +6,7 @@ use App\Packages\Infrastructure\View;
 
 class HomeController
 {
-    public function main(): View
+    public function index(): View
     {
         return new View('main');
     }

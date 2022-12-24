@@ -28,4 +28,7 @@ class User extends Model
     {
         return $this->belongsTo(School::class);
     }
+
+    public static function authenticate()
+    {}
 }

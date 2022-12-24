@@ -29,11 +29,17 @@ class Request
 
     private function getData(): array
     {
-        if ($this->getMethod() === 'GET') {
-            return $_GET;
+        $data = $this->getMethod() === 'GET' ? $_GET : $_POST;
+
+        // Validation for every request
+        foreach ($data as $index => $value) {
+            $value = trim($value);
+            $value = stripslashes($value);
+            $value = htmlspecialchars($value);
+            $data[$index] = $value;
         }
 
-        return $_POST;
+        return $data;
     }
 
     /**

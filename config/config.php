@@ -1,6 +1,7 @@
 <?php
 
 return [
+    'app_name' => 'http://localhost:8000',
     'database' => [
         'driver' => 'mysql',
         'host' => 'localhost',
