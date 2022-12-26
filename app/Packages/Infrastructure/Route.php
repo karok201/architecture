@@ -53,9 +53,9 @@ class Route
     {
         if ($method === $this->method) {
             return trim($this->getPath(), '/') === $path;
-        } else {
-            throw new RuntimeException('The transmission method does not match the route', 405);
         }
+
+        return false;
     }
 
     private function runMiddleware(Request $request): void

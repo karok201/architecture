@@ -19,7 +19,7 @@ class Validator
         'address'       => '[\p{L}0-9\s.,()°-]+',
         'date_dmy'      => '[0-9]{1,2}\-[0-9]{1,2}\-[0-9]{4}',
         'date_ymd'      => '[0-9]{4}\-[0-9]{1,2}\-[0-9]{1,2}',
-        'email'         => '[a-zA-Z0-9_.-]+@[a-zA-Z0-9-]+.[a-zA-Z0-9-.]+[.]+[a-z-A-Z]'
+        'email'         => '/^[_a-z0-9-]+(\.[_a-z0-9-]+)*@[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,})$/i'
     );
 
     /**
@@ -41,12 +41,13 @@ class Validator
      */
     public function validate(array $rules, array $payload): array
     {
-        foreach ($payload as $index => $value) {
-            $rules = explode(',', $rules[$index]);
+        foreach ($rules as $index => $value) {
+            $rule = str_contains($value, '|')
+                ? explode('|', $value)
+                : [$value]
+            ;
 
-            foreach ($rules as $rule) {
-                $this->validateRule($rule, $value, $index);
-            }
+            $this->validateRule($rule, $payload, $index);
         }
 
         return $this->isValid
@@ -54,17 +55,20 @@ class Validator
             : $this->errors;
     }
 
-    private function validateRule(string $rule, mixed $value, string $index): void
+    private function validateRule(array $rule, array $payload, string $index): void
     {
-        if ($rule === 'required' && !isset($value)) {
-            $this->isValid = false;
-            $this->errors[$index] = 'Обязательно к заполнению';
-            return;
-        }
+        foreach ($rule as $value) {
+            if ($value === 'required' && (!isset($payload[$index]) || $payload[$index] === '')) {
+                $this->isValid = false;
+                $this->errors[$index] = 'required';
+                break;
+            }
 
-        if (!preg_match($this->patterns[$rule], $value)) {
-            $this->isValid = false;
-            $this->errors[$index] = 'Неверный тип значения';
+            if ($value !== 'required' && !preg_match($this->patterns[$value], $payload[$index])) {
+                $this->isValid = false;
+                $this->errors[$index] = 'incorrect type';
+                break;
+            }
         }
     }
 }

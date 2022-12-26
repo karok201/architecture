@@ -23,17 +23,20 @@ class AuthenticatedSessionController
     }
 
     // @TODO: Сделать обработчик ошибок
-    #[NoReturn] public function store(Request $request): void
+    public function store(): View|string
     {
-        $this->validator->validate([
-            'email' => 'required|email'
+        $request = new Request();
+
+        $data = $this->validator->validate([
+            'email' => 'required|email',
+            'password' => 'required'
         ], $request->all());
 
         User::authenticate();
 
         session_regenerate_id();
 
-        redirect('/dashboard');
+        return json_encode($data);
     }
 
     public function destroy()
